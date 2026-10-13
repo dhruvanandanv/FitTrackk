@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitTrack — Personal Fitness & Wellness Tracker</title>
+    <meta name="description" content="Personal fitness tracking application for workouts, nutrition, body weight, hydration, and sleep.">
+    <link rel="stylesheet" href="/static/style.css">
+    <!-- Chart.js for data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div id="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+                        <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+                        <line x1="6" y1="1" x2="6" y2="4"></line>
+                        <line x1="10" y1="1" x2="10" y2="4"></line>
+                        <line x1="14" y1="1" x2="14" y2="4"></line>
+                    </svg>
+                </div>
+                <div class="brand-title">FIT<span>TRACK</span></div>
+            </div>
+
+            <nav class="nav-menu">
+                <a class="nav-item active" data-view="dashboard">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+                    Dashboard
+                </a>
+                <a class="nav-item" data-view="weight">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4M12 16V8"/></svg>
+                    Weight Tracking
+                </a>
+                <a class="nav-item" data-view="workouts">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 5v14M18 5v14M2 9v6M22 9v6M10 12h4"/></svg>
+                    Workouts
+                </a>
+                <a class="nav-item" data-view="activity">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 16v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2"/><circle cx="12" cy="4" r="2"/></svg>
+                    Activity
+                </a>
+                <a class="nav-item" data-view="nutrition">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+                    Nutrition
+                </a>
+                <a class="nav-item" data-view="hydration">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+                    Hydration
+                </a>
+                <a class="nav-item" data-view="sleep">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                    Sleep
+                </a>
+                <a class="nav-item" data-view="analytics">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                    Analytics
+                </a>
+                <a class="nav-item" data-view="profile">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a8.38 8.38 0 0 1 13 0"/></svg>
+                    Settings
+                </a>
+            </nav>
+
+            <div class="sidebar-user">
+                <div class="user-badge">
+                    <div class="user-avatar" id="user-avatar-initials">U</div>
+                    <div class="user-info">
+                        <div class="user-name" id="sidebar-user-name">Guest User</div>
+                        <div class="user-role" id="sidebar-user-email">Sign in</div>
+                    </div>
+                </div>
+                <button class="btn-icon-logout" id="btn-logout-sidebar" title="Log out">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Wrapper -->
+        <div class="main-wrapper">
+            <!-- Sticky Top Bar -->
+            <header class="top-bar">
+                <div class="date-controls">
+                    <button class="date-arrow-btn" id="btn-prev-day" title="Previous Day">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                    </button>
+                    <input type="date" id="active-date-picker" class="date-input">
+                    <button class="date-arrow-btn" id="btn-next-day" title="Next Day">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                    </button>
+                </div>
+
+                <div class="top-bar-actions">
+                    <div class="weather-badge" id="weather-pill" title="Live Weather from Open-Meteo">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                        <span id="weather-text">Checking weather...</span>
+                    </div>
+                    <button class="btn btn-primary btn-sm" id="btn-quick-workout">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        Log Workout
+                    </button>
+                </div>
+            </header>
+
+            <!-- Content Body -->
+            <main class="content-body">
+                <!-- VIEW 1: DASHBOARD -->
+                <section class="view-section active" id="view-dashboard">
+                    <div class="page-header">
+                        <div>
+                            <div class="greeting-text" id="dashboard-greeting">GOOD MORNING</div>
+                            <h1 class="page-title" id="dashboard-user-greeting">Welcome back!</h1>
+                            <div class="page-subtitle" id="dashboard-date-display">Today's fitness metrics & activity overview</div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions Row -->
+                    <div class="quick-actions-bar">
+                        <button class="btn btn-secondary btn-sm" id="qa-log-weight">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+                            Log Weight
+                        </button>
+                        <button class="btn btn-secondary btn-sm" id="qa-log-workout">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            Log Workout
+                        </button>
+                        <button class="btn btn-secondary btn-sm" id="qa-log-activity">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 16v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2"/><circle cx="12" cy="4" r="2"/></svg>
+                            Update Steps
+                        </button>
+                        <button class="btn btn-secondary btn-sm" id="qa-log-food">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/></svg>
+                            Record Food
+                        </button>
+                        <button class="btn btn-secondary btn-sm" id="qa-quick-water-250">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+                            +250ml Water
+                        </button>
+                        <button class="btn btn-secondary btn-sm" id="qa-log-sleep">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                            Record Sleep
+                        </button>
+                    </div>
+
+                    <!-- KPI Cards Grid (6 Essential Health Metrics) -->
+                    <div class="kpi-grid">
+                        <!-- 1. Weight Card -->
+                        <div class="card kpi-card">
+                            <div class="kpi-top">
+                                <span class="kpi-title">Current Weight</span>
+                                <div class="kpi-icon-pill green">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4"/></svg>
+                                </div>
+                            </div>
+                            <div class="kpi-value-row">
+                                <span class="kpi-val" id="kpi-weight-val">--</span>
+                                <span class="kpi-unit">kg</span>
+                            </div>
+                            <div class="kpi-subtext" id="kpi-weight-subtext">No entries recorded yet</div>
+                        </div>
+
+                        <!-- 2. Steps Card -->
+                        <div class="card kpi-card">
+                            <div class="kpi-top">
+                                <span class="kpi-title">Daily Steps</span>
+                                <div class="kpi-icon-pill blue">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 16v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2"/><circle cx="12" cy="4" r="2"/></svg>
+                                </div>
+                            </div>
+                            <div class="kpi-value-row">
+                                <span class="kpi-val" id="kpi-steps-val">0</span>
+                                <span class="kpi-unit" id="kpi-steps-target">/ 10,000</span>
+                            </div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill blue" id="kpi-steps-bar" style="width: 0%;"></div>
+                            </div>
+                            <div class="kpi-subtext" id="kpi-steps-subtext" style="margin-top:8px;">0% of daily target</div>
+                        </div>
+
+                        <!-- 3. Calories Card -->
+                        <div class="card kpi-card">
+                            <div class="kpi-top">
+                                <span class="kpi-title">Calories In / Out</span>
+                                <div class="kpi-icon-pill orange">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                                </div>
+                            </div>
+                            <div class="kpi-value-row">
+                                <span class="kpi-val" id="kpi-calories-in">0</span>
+                                <span class="kpi-unit">kcal in</span>
+                            </div>
+                            <div class="kpi-subtext" id="kpi-calories-burned">Burned: 0 kcal (workouts & activity)</div>
+                        </div>
+
+                        <!-- 4. Water Card -->
+                        <div class="card kpi-card">
+                            <div class="kpi-top">
+                                <span class="kpi-title">Water Consumed</span>
+                                <div class="kpi-icon-pill blue">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+                                </div>
+                            </div>
+                            <div class="kpi-value-row">
+                                <span class="kpi-val" id="kpi-water-val">0</span>
+                                <span class="kpi-unit" id="kpi-water-target">/ 2,500 ml</span>
+                            </div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill blue" id="kpi-water-bar" style="width: 0%;"></div>
+                            </div>
+                            <div class="kpi-subtext" id="kpi-water-subtext" style="margin-top:8px;">0% completed</div>
+                        </div>
+
+                        <!-- 5. Sleep Card -->
+                        <div class="card kpi-card">
+                            <div class="kpi-top">
+                                <span class="kpi-title">Sleep Duration</span>
+                                <div class="kpi-icon-pill purple">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                                </div>
+                            </div>
+                            <div class="kpi-value-row">
+                                <span class="kpi-val" id="kpi-sleep-val">0.0</span>
+                                <span class="kpi-unit" id="kpi-sleep-target">/ 8.0 hrs</span>
+                            </div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill purple" id="kpi-sleep-bar" style="width: 0%;"></div>
+                            </div>
+                            <div class="kpi-subtext" id="kpi-sleep-subtext" style="margin-top:8px;">0% of recovery goal</div>
+                        </div>
+
+                        <!-- 6. Workouts Card -->
+                        <div class="card kpi-card">
+                            <div class="kpi-top">
+                                <span class="kpi-title">Workout Activity</span>
+                                <div class="kpi-icon-pill green">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 5v14M18 5v14M2 9v6M22 9v6M10 12h4"/></svg>
+                                </div>
+                            </div>
+                            <div class="kpi-value-row">
+                                <span class="kpi-val" id="kpi-workout-duration-val">0</span>
+                                <span class="kpi-unit">mins</span>
+                            </div>
+                            <div class="kpi-subtext" id="kpi-workout-sessions-subtext">0 sessions logged today</div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Grid -->
+                    <div class="charts-grid">
+                        <div class="card">
+                            <div class="chart-card-header">
+                                <div class="chart-title">Weekly Activity & Training</div>
+                                <span class="badge green">Last 7 Days</span>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="chart-weekly-activity"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="chart-card-header">
+                                <div class="chart-title">Weight Trend</div>
+                                <span class="badge blue">Progress</span>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="chart-weight-trend"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Workouts Card -->
+                    <div class="card" style="margin-top: 24px;">
+                        <div class="chart-card-header">
+                            <div class="chart-title">Recent Workouts</div>
+                            <button class="btn btn-secondary btn-sm" data-view="workouts">View All</button>
+                        </div>
+                        <div id="dashboard-recent-workouts-list">
+                            <div class="empty-state">
+                                <p>No workouts recorded yet. Start by logging your first training session!</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 2: WORKOUTS -->
+                <section class="view-section" id="view-workouts">
+                    <div class="page-header">
+                        <div>
+                            <h1 class="page-title">Workouts & Training</h1>
+                            <div class="page-subtitle">Record sessions, track exercises, sets, repetitions, and resistance.</div>
+                        </div>
+                        <button class="btn btn-primary" id="btn-add-workout-modal">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            New Workout
+                        </button>
+                    </div>
+
+                    <!-- Filter Bar -->
+                    <div class="card" style="margin-bottom: 24px; padding: 16px 20px;">
+                        <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:space-between;">
+                            <div style="display:flex; gap:8px; flex-wrap:wrap;" id="workout-filter-pills">
+                                <button class="btn btn-sm btn-primary filter-wtype-btn" data-type="">All Workouts</button>
+                                <button class="btn btn-sm btn-secondary filter-wtype-btn" data-type="strength">Strength</button>
+                                <button class="btn btn-sm btn-secondary filter-wtype-btn" data-type="cardio">Cardio</button>
+                                <button class="btn btn-sm btn-secondary filter-wtype-btn" data-type="hiit">HIIT</button>
+                                <button class="btn btn-sm btn-secondary filter-wtype-btn" data-type="yoga">Yoga</button>
+                            </div>
+                            <div style="font-size:0.85rem; color:var(--text-secondary);" id="workout-count-label">Loading workouts...</div>
+                        </div>
+                    </div>
+
+                    <div id="workouts-list-container">
+                        <!-- Populated dynamically -->
+                    </div>
+
+                    <!-- Exercise Knowledge Base Searcher -->
+                    <div class="card" style="margin-top: 32px;">
+                        <div class="chart-card-header">
+                            <div class="chart-title">Exercise Database & Muscle Guides</div>
+                            <span class="badge purple">FitTrack Library</span>
+                        </div>
+                        <div style="display:flex; gap:12px; margin-bottom:16px;">
+                            <input type="text" id="exercise-search-input" class="form-input" placeholder="Search exercises (e.g., Squat, Bench, Deadlift, Running)..." style="flex:1;">
+                            <select id="exercise-muscle-filter" class="form-select" style="max-width: 180px;">
+                                <option value="">All Muscles</option>
+                                <option value="Chest">Chest</option>
+                                <option value="Back">Back</option>
+                                <option value="Legs">Legs</option>
+                                <option value="Shoulders">Shoulders</option>
+                                <option value="Arms">Arms</option>
+                                <option value="Core">Core</option>
+                                <option value="Cardio">Cardio</option>
+                            </select>
+                        </div>
+                        <div id="exercise-catalog-results" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:14px;">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 3: NUTRITION & FOOD -->
+                <section class="view-section" id="view-nutrition">
+                    <div class="page-header">
+                        <div>
+                            <h1 class="page-title">Nutrition & Food Log</h1>
+                            <div class="page-subtitle">Track meals, calories, and macronutrients (protein, carbs, fat).</div>
+                        </div>
+                        <button class="btn btn-primary" id="btn-open-log-food-modal">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            Log Food
+                        </button>
+                    </div>
+
+                    <!-- Macro Summary Card & Chart -->
+                    <div class="charts-grid">
+                        <div class="card">
+                            <div class="chart-card-header">
+                                <div class="chart-title">Today's Macronutrient Totals</div>
+                                <span class="badge orange" id="nutrition-total-cals">0 kcal</span>
+                            </div>
+                            <div class="kpi-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 0;">
+                                <div style="background:rgba(0,0,0,0.2); padding:16px; border-radius:12px; border:1px solid rgba(255,255,255,0.05);">
+                                    <div style="font-size:0.75rem; color:var(--text-secondary); text-transform:uppercase;">Protein</div>
+                                    <div style="font-size:1.6rem; font-weight:800; color:var(--accent);" id="macro-protein-val">0g</div>
+                                </div>
+                                <div style="background:rgba(0,0,0,0.2); padding:16px; border-radius:12px; border:1px solid rgba(255,255,255,0.05);">
+                                    <div style="font-size:0.75rem; color:var(--text-secondary); text-transform:uppercase;">Carbohydrates</div>
+                                    <div style="font-size:1.6rem; font-weight:800; color:var(--cyan);" id="macro-carbs-val">0g</div>
+                                </div>
+                                <div style="background:rgba(0,0,0,0.2); padding:16px; border-radius:12px; border:1px solid rgba(255,255,255,0.05);">
+                                    <div style="font-size:0.75rem; color:var(--text-secondary); text-transform:uppercase;">Fat</div>
+                                    <div style="font-size:1.6rem; font-weight:800; color:var(--orange);" id="macro-fat-val">0g</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="chart-card-header">
+                                <div class="chart-title">Macro Breakdown</div>
+                            </div>
+                            <div class="chart-container" style="min-height: 200px; display:flex; align-items:center; justify-content:center;">
+                                <canvas id="chart-macro-doughnut" style="max-height: 200px;"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Food Database Search Integration -->
+                    <div class="card" style="margin-top: 24px;">
+                        <div class="chart-card-header">
+                            <div class="chart-title">Search Foods & Nutrition Database</div>
+                            <span class="badge green">USDA & Verified Database</span>
+                        </div>
+                        <div style="display:flex; gap:12px; margin-bottom:16px;">
+                            <input type="text" id="food-search-input" class="form-input" placeholder="Type food name (e.g. Chicken breast, Oatmeal, Banana, Salmon)..." style="flex:1;">
+                            <button class="btn btn-secondary" id="btn-search-food-action">Search</button>
+                        </div>
+                        <div id="food-search-results" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap:12px;">
+                            <!-- Populated on search -->
+                        </div>
+                    </div>
+
+                    <!-- Today's Logged Meals Table -->
+                    <div class="card" style="margin-top: 24px;">
+                        <div class="chart-card-header">
+                            <div class="chart-title">Logged Meals for Selected Date</div>
+                        </div>
+                        <div class="data-table-wrapper">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Meal</th>
+                                        <th>Food Item</th>
+                                        <th>Qty</th>
+                                        <th>Calories</th>
+                                        <th>Protein</th>
+                                        <th>Carbs</th>
+                                        <th>Fat</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="food-table-body">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW: ACTIVITY -->
+                <section class="view-section" id="view-activity">
+                    <div class="page-header">
+                        <div>
+                            <h1 class="page-title">Daily Activity & Step Tracking</h1>
+                            <div class="page-subtitle">Track steps, active movement, cardiovascular minutes, and daily energy expenditure.</div>
+                        </div>
+                        <button class="btn btn-primary" id="btn-open-log-activity-modal">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            Log Activity
+                        </button>
+                    </div>
+
+                    <!-- Activity KPI Grid -->
+                    <div class="kpi-grid">
+                        <div class="card kpi-card">
+                            <div class="kpi-top">
+                                <span class="kpi-title">Today's Steps</span>
+                                <div class="kpi-icon-pill blue">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 16v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2"/><circle cx="12" cy="4" r="2"/></svg>
+                                </div>
+                            </div>
+                            <div class="kpi-value-row">
+                                <span class="kpi-val" id="activity-steps-val">0</span>
+                                <span class="kpi-unit" id="activity-steps-target">/ 10,000</span>
+                            </div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill blue" id="activity-steps-bar" style="width: 0%;"></div>
+                            </div>
+                            <div class="kpi-subtext" id="activity-steps-subtext" style="margin-top:8px;">0% achieved</div>
+                        </div>
+
+                        <div class="card kpi-card">
+                            <div class="kpi-top">
+                                <span class="kpi-title">Active Minutes</span>
+                                <div class="kpi-icon-pill green">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                </div>
+                            </div>
+                            <div class="kpi-value-row">
+                                <span class="kpi-val" id="activity-active-mins">0</span>
+                                <span class="kpi-unit">mins</span>
+                            </div>
+                            <div class="kpi-subtext">Active exertion today</div>
+                        </div>
+
+                        <div class="card kpi-card">
+                            <div class="kpi-top">
+                                <span class="kpi-title">Cardio Minutes</span>
+                                <div class="kpi-icon-pill orange">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                                </div>
+                            </div>
+                            <div class="kpi-value-row">
+                                <span class="kpi-val" id="activity-cardio-mins">0</span>
+                                <span class="kpi-unit">mins</span>
+                            </div>
+                            <div class="kpi-subtext">Elevated heart rate</div>
+                        </div>
+
+                        <div class="card kpi-card">
+                            <div class="kpi-top">
+                                <span class="kpi-title">Estimated Burned</span>
+                                <div class="kpi-icon-pill orange">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                                </div>
+                            </div>
+                            <div class="kpi-value-row">
+                                <span class="kpi-val" id="activity-calories-burned">0</span>
+                                <span class="kpi-unit">kcal</span>
+                            </div>
+                            <div class="kpi-subtext">Active calorie burn</div>
+                        </div>
+                    </div>
+
+                    <!-- Activity History Table -->
+                    <div class="card" style="margin-top: 24px;">
+                        <div class="chart-card-header">
+                            <div class="chart-title">Daily Activity Log History</div>
+                        </div>
+                        <div class="data-table-wrapper">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Steps</th>
+                                        <th>Active Mins</th>
+                                        <th>Cardio Mins</th>
+                                        <th>Burned (kcal)</th>
+                                        <th>Source</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="activity-history-table-body">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW: HYDRATION -->
+                <section class="view-section" id="view-hydration">
+                    <div class="page-header">
+                        <div>
+                            <h1 class="page-title">Hydration Tracker</h1>
+                            <div class="page-subtitle">Log daily fluid intake, monitor hydration milestones, and review intake history.</div>
+                        </div>
+                        <span class="badge blue" id="hydration-page-total-badge" style="font-size:0.9rem; padding:8px 14px;">0 / 2,500 ml</span>
+                    </div>
+
+                    <div class="card">
+                        <div class="chart-card-header">
+                            <div class="chart-title">Water Intake Progress</div>
+                        </div>
+                        <div class="water-visual-container">
+                            <div class="water-bottle">
+                                <div class="water-fill-level" id="visual-water-fill-hydration" style="height: 0%;"></div>
+                            </div>
+                            <div style="flex:1;">
+                                <div style="font-size:0.88rem; color:var(--text-secondary); margin-bottom:12px; font-weight:600;">Quick-Add Water:</div>
+                                <div class="quick-water-btn-group">
+                                    <button class="btn btn-secondary btn-sm btn-quick-water" data-amount="250">+250 ml (Glass)</button>
+                                    <button class="btn btn-secondary btn-sm btn-quick-water" data-amount="500">+500 ml (Bottle)</button>
+                                    <button class="btn btn-secondary btn-sm btn-quick-water" data-amount="750">+750 ml (Shaker)</button>
+                                </div>
+                                <form id="form-custom-water-page" style="display:flex; gap:10px; margin-top:16px;">
+                                    <input type="number" id="input-custom-water-page-ml" class="form-input" placeholder="Custom ml (e.g. 350)" min="10" max="4000" style="max-width: 180px;" required>
+                                    <button type="submit" class="btn btn-primary btn-sm">Add Water</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div style="margin-top:24px; border-top:1px solid var(--border-subtle); padding-top:18px;">
+                            <div style="font-size:0.9rem; font-weight:700; color:var(--text-primary); margin-bottom:12px;">Today's Water Entries:</div>
+                            <div id="hydration-entries-list" style="display:flex; flex-direction:column; gap:8px;">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW: SLEEP -->
+                <section class="view-section" id="view-sleep">
+                    <div class="page-header">
+                        <div>
+                            <h1 class="page-title">Sleep & Recovery Tracking</h1>
+                            <div class="page-subtitle">Monitor nocturnal rest duration, sleep cycles, and daily recovery scores.</div>
+                        </div>
+                    </div>
+
+                    <div class="charts-grid">
+                        <div class="card">
+                            <div class="chart-card-header">
+                                <div class="chart-title">Record Sleep Session</div>
+                                <span class="badge purple">Recovery Log</span>
+                            </div>
+                            <form id="form-record-sleep-page">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Sleep Start (Date & Time)</label>
+                                        <input type="datetime-local" id="sleep-start-time-page" class="form-input" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Sleep End (Date & Time)</label>
+                                        <input type="datetime-local" id="sleep-end-time-page" class="form-input" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Quality Rating (1 to 5 Stars)</label>
+                                    <select id="sleep-quality-page" class="form-select">
+                                        <option value="5">⭐⭐⭐⭐⭐ 5 - Excellent & Fully Rested</option>
+                                        <option value="4" selected>⭐⭐⭐⭐ 4 - Good & Restored</option>
+                                        <option value="3">⭐⭐⭐ 3 - Fair</option>
+                                        <option value="2">⭐⭐ 2 - Restless / Interrupted</option>
+                                        <option value="1">⭐ 1 - Poor / Insufficient</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary" style="width:100%;">Save Sleep Session</button>
+                            </form>
+                        </div>
+
+                        <div class="card">
+                            <div class="chart-card-header">
+                                <div class="chart-title">Sleep History & Quality</div>
+                            </div>
+                            <div id="sleep-history-list-page" style="display:flex; flex-direction:column; gap:10px; max-height:400px; overflow-y:auto;">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 5: WEIGHT & BODY -->
+                <section class="view-section" id="view-weight">
+                    <div class="page-header">
+                        <div>
+                            <h1 class="page-title">Body Weight Tracking</h1>
+                            <div class="page-subtitle">Monitor historical weigh-ins, trends, and target weight milestones.</div>
+                        </div>
+                        <button class="btn btn-primary" id="btn-open-log-weight-modal">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            Log Weight
+                        </button>
+                    </div>
+
+                    <div class="kpi-grid">
+                        <div class="card kpi-card">
+                            <span class="kpi-title">Latest Weight</span>
+                            <div class="kpi-value-row">
+                                <span class="kpi-val" id="weight-view-latest">--</span>
+                                <span class="kpi-unit">kg</span>
+                            </div>
+                            <div class="kpi-subtext" id="weight-view-first">Starting: -- kg</div>
+                        </div>
+                        <div class="card kpi-card">
+                            <span class="kpi-title">Overall Change</span>
+                            <div class="kpi-value-row">
+                                <span class="kpi-val" id="weight-view-change">--</span>
+                                <span class="kpi-unit">kg</span>
+                            </div>
+                            <div class="kpi-subtext" id="weight-view-change-sub">Calculated from first entry</div>
+                        </div>
+                        <div class="card kpi-card">
+                            <span class="kpi-title">Target Goal</span>
+                            <div class="kpi-value-row">
+                                <span class="kpi-val" id="weight-view-target">--</span>
+                                <span class="kpi-unit">kg</span>
+                            </div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill green" id="weight-view-progress-bar" style="width: 0%;"></div>
+                            </div>
+                            <div class="kpi-subtext" id="weight-view-progress-text" style="margin-top:8px;">Configure in settings</div>
+                        </div>
+                        <div class="card kpi-card">
+                            <span class="kpi-title">BMI Screening</span>
+                            <div class="kpi-value-row">
+                                <span class="kpi-val" id="weight-view-bmi">--</span>
+                            </div>
+                            <div class="kpi-subtext">Optional screening calculation based on height</div>
+                        </div>
+                    </div>
+
+                    <!-- Full Historical Line Chart -->
+                    <div class="card" style="margin-top: 24px;">
+                        <div class="chart-card-header">
+                            <div class="chart-title">Weight Progression Chart</div>
+                        </div>
+                        <div class="chart-container" style="min-height: 320px;">
+                            <canvas id="chart-weight-full-history"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Weight History Table -->
+                    <div class="card" style="margin-top: 24px;">
+                        <div class="chart-card-header">
+                            <div class="chart-title">Weigh-in History</div>
+                        </div>
+                        <div class="data-table-wrapper">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Weight (kg)</th>
+                                        <th>Note</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="weight-history-table-body">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 6: ANALYTICS & REPORTS -->
+                <section class="view-section" id="view-analytics">
+                    <div class="page-header">
+                        <div>
+                            <h1 class="page-title">Analytics, Reports & AI Insights</h1>
+                            <div class="page-subtitle">Deep dive into weekly and monthly fitness performance.</div>
+                        </div>
+                    </div>
+
+                    <!-- AI Insights Banner Card -->
+                    <div class="card" style="background: linear-gradient(135deg, rgba(22, 29, 39, 0.95), rgba(163, 230, 53, 0.08)); border-color: rgba(163, 230, 53, 0.2); margin-bottom: 24px;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; margin-bottom:16px;">
+                            <div style="display:flex; align-items:center; gap:12px;">
+                                <div class="brand-icon" style="background:linear-gradient(135deg, #a3e635, #38bdf8); color:#000;">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                </div>
+                                <div>
+                                    <h3 style="font-size:1.15rem; font-weight:700; color:var(--text-primary);">Personal AI Fitness Insights</h3>
+                                    <div style="font-size:0.85rem; color:var(--text-secondary);">Grounded algorithmic analysis of your actual stored training, steps, sleep, and nutrition</div>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary btn-sm" id="btn-generate-ai-insights">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                                Generate AI Weekly Summary
+                            </button>
+                        </div>
+                        <div id="ai-insights-container" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:14px;">
+                            <div style="color:var(--text-muted); font-size:0.9rem;">Click "Generate AI Weekly Summary" to analyze your latest 7-day progress.</div>
+                        </div>
+                    </div>
+
+                    <!-- Weekly Analytics Summary -->
+                    <div class="kpi-grid">
+                        <div class="card kpi-card">
+                            <span class="kpi-title">Weekly Total Steps</span>
+                            <div class="kpi-value-row">
+                                <span class="kpi-val" id="analytics-total-steps">0</span>
+                            </div>
+                            <div class="kpi-subtext" id="analytics-avg-steps">Avg: 0 / day</div>
+                        </div>
+                        <div class="card kpi-card">
+                            <span class="kpi-title">Weekly Workouts</span>
+                            <div class="kpi-value-row">
+                                <span class="kpi-val" id="analytics-total-workouts">0</span>
+                            </div>
+                            <div class="kpi-subtext" id="analytics-workout-mins">0 total minutes</div>
+                        </div>
+                        <div class="card kpi-card">
+                            <span class="kpi-title">Avg Nightly Sleep</span>
+                            <div class="kpi-value-row">
+                                <span class="kpi-val" id="analytics-avg-sleep">0.0</span>
+                                <span class="kpi-unit">hrs</span>
+                            </div>
+                            <div class="kpi-subtext">Rest and recovery average</div>
+                        </div>
+                        <div class="card kpi-card">
+                            <span class="kpi-title">Step Goal Consistency</span>
+                            <div class="kpi-value-row">
+                                <span class="kpi-val" id="analytics-goal-rate">0%</span>
+                            </div>
+                            <div class="kpi-subtext">Days step goal achieved</div>
+                        </div>
+                    </div>
+
+                    <!-- Data Export Section -->
+                    <div class="card" style="margin-top: 24px;">
+                        <div class="chart-card-header">
+                            <div>
+                                <div class="chart-title">Export Personal Data (CSV)</div>
+                                <div style="font-size:0.85rem; color:var(--text-secondary);">Download an isolated, structured CSV containing your own fitness records.</div>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:12px;">
+                            <button class="btn btn-secondary btn-sm btn-export-csv" data-type="all">Export All Records (.csv)</button>
+                            <button class="btn btn-secondary btn-sm btn-export-csv" data-type="weight">Export Weight (.csv)</button>
+                            <button class="btn btn-secondary btn-sm btn-export-csv" data-type="workouts">Export Workouts (.csv)</button>
+                            <button class="btn btn-secondary btn-sm btn-export-csv" data-type="food">Export Nutrition (.csv)</button>
+                            <button class="btn btn-secondary btn-sm btn-export-csv" data-type="activity">Export Daily Activity (.csv)</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 7: PROFILE & GOALS -->
+                <section class="view-section" id="view-profile">
+                    <div class="page-header">
+                        <div>
+                            <h1 class="page-title">Profile & Personal Goals</h1>
+                            <div class="page-subtitle">Configure your personal targets, units, and fitness objectives.</div>
+                        </div>
+                    </div>
+
+                    <div class="card" style="max-width: 720px;">
+                        <form id="form-user-profile">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Primary Fitness Goal</label>
+                                    <select id="prof-fitness-goal" class="form-select">
+                                        <option value="maintain">Maintain Current Weight & Fitness</option>
+                                        <option value="lose_weight">Weight Loss</option>
+                                        <option value="build_muscle">Muscle Building & Hypertrophy</option>
+                                        <option value="endurance">Endurance & Cardiovascular Stamina</option>
+                                        <option value="general_fitness">General Health & Mobility</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Preferred Units</label>
+                                    <select id="prof-preferred-units" class="form-select">
+                                        <option value="metric">Metric (kg, cm, ml)</option>
+                                        <option value="imperial">Imperial (lbs, in, oz)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Height (cm)</label>
+                                    <input type="number" id="prof-height" class="form-input" placeholder="e.g. 178" step="0.5">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Target Weight (kg, optional)</label>
+                                    <input type="number" id="prof-target-weight" class="form-input" placeholder="e.g. 75.0" step="0.1">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Daily Step Target</label>
+                                    <input type="number" id="prof-daily-steps" class="form-input" value="10000" min="1000" max="100000">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Daily Water Target (ml)</label>
+                                    <input type="number" id="prof-daily-water" class="form-input" value="2500" min="500" max="10000">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Daily Sleep Goal (hours)</label>
+                                    <input type="number" id="prof-daily-sleep" class="form-input" value="8.0" step="0.5" min="4" max="14">
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" style="margin-top: 10px;">Save Profile Settings</button>
+                        </form>
+                    </div>
+                </section>
+            </main>
+        </div>
+
+        <!-- Mobile Bottom Navigation (Strict 5-Item Destination Limit) -->
+        <nav class="mobile-nav">
+            <a class="mobile-nav-item active" data-view="dashboard">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+                <span>Home</span>
+            </a>
+            <a class="mobile-nav-item" data-view="activity">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 16v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2"/><circle cx="12" cy="4" r="2"/></svg>
+                <span>Activity</span>
+            </a>
+            <a class="mobile-nav-item" data-view="workouts">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 5v14M18 5v14M2 9v6M22 9v6M10 12h4"/></svg>
+                <span>Workouts</span>
+            </a>
+            <a class="mobile-nav-item" data-view="weight">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4"/></svg>
+                <span>Progress</span>
+            </a>
+            <button class="mobile-nav-item" id="btn-mobile-more" type="button" style="background:none; border:none; cursor:pointer;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+                <span>More</span>
+            </button>
+        </nav>
+
+        <!-- Mobile More Slide-up Sheet -->
+        <div class="mobile-more-backdrop" id="mobile-more-backdrop"></div>
+        <div class="mobile-more-sheet" id="mobile-more-sheet">
+            <div class="mobile-more-handle"></div>
+            <div class="mobile-more-header">
+                <span class="mobile-more-title">More Fitness Features</span>
+                <button type="button" class="modal-close-btn" id="btn-close-more-sheet">&times;</button>
+            </div>
+            <div class="mobile-more-grid">
+                <a class="mobile-more-item" data-view="nutrition">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/></svg>
+                    <span>Nutrition & Food</span>
+                </a>
+                <a class="mobile-more-item" data-view="hydration">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+                    <span>Hydration</span>
+                </a>
+                <a class="mobile-more-item" data-view="sleep">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                    <span>Sleep Recovery</span>
+                </a>
+                <a class="mobile-more-item" data-view="analytics">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                    <span>Analytics & AI</span>
+                </a>
+                <a class="mobile-more-item" data-view="profile">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a8.38 8.38 0 0 1 13 0"/></svg>
+                    <span>Settings & Goals</span>
+                </a>
+                <button class="mobile-more-item" id="btn-logout-mobile-sheet" type="button" style="color:var(--error); border-color:rgba(255,119,119,0.2);">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="color:var(--error);"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    <span>Sign Out</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD / EDIT WORKOUT -->
+    <div class="modal-overlay" id="modal-workout">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="workout-modal-title">Log Workout Session</h3>
+                <button class="modal-close-btn" data-close-modal="modal-workout">&times;</button>
+            </div>
+            <form id="form-workout">
+                <div class="modal-body">
+                    <input type="hidden" id="workout-edit-id" value="">
+                    <div class="form-group">
+                        <label class="form-label">Workout Name</label>
+                        <input type="text" id="w-input-name" class="form-input" placeholder="e.g. Upper Body Hypertrophy, 5km Morning Run" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Type</label>
+                            <select id="w-input-type" class="form-select">
+                                <option value="strength">Strength Training</option>
+                                <option value="cardio">Cardio / Running</option>
+                                <option value="hiit">HIIT</option>
+                                <option value="calisthenics">Calisthenics</option>
+                                <option value="yoga">Yoga & Mobility</option>
+                                <option value="walking">Walking</option>
+                                <option value="cycling">Cycling</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Duration (minutes)</label>
+                            <input type="number" id="w-input-duration" class="form-input" placeholder="45" min="1" max="1440" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Start Time</label>
+                            <input type="datetime-local" id="w-input-start-time" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Estimated Calories Burned</label>
+                            <input type="number" id="w-input-calories" class="form-input" placeholder="optional" min="0" step="5">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Workout Notes</label>
+                        <input type="text" id="w-input-notes" class="form-input" placeholder="Feeling strong, hit a new PR on squats...">
+                    </div>
+
+                    <!-- Exercises Sub-form -->
+                    <div style="margin-top:20px; border-top:1px solid var(--border-subtle); padding-top:16px;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+                            <label class="form-label" style="margin-bottom:0;">Exercises Performed</label>
+                            <button type="button" class="btn btn-secondary btn-sm" id="btn-add-exercise-row">+ Add Exercise</button>
+                        </div>
+                        <div id="workout-exercises-rows-container">
+                            <!-- Populated with rows -->
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-close-modal="modal-workout">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="btn-save-workout">Save Workout</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: LOG WEIGHT -->
+    <div class="modal-overlay" id="modal-weight">
+        <div class="modal-content" style="max-width: 440px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Record Body Weight</h3>
+                <button class="modal-close-btn" data-close-modal="modal-weight">&times;</button>
+            </div>
+            <form id="form-log-weight">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">Weight (kg)</label>
+                        <input type="number" id="input-weight-kg" class="form-input" step="0.1" min="20" max="400" placeholder="e.g. 76.5" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Measurement Date</label>
+                        <input type="date" id="input-weight-date" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Notes (optional)</label>
+                        <input type="text" id="input-weight-note" class="form-input" placeholder="Morning fasted weigh-in">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-close-modal="modal-weight">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Weight</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: LOG FOOD -->
+    <div class="modal-overlay" id="modal-food">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Log Meal / Food Item</h3>
+                <button class="modal-close-btn" data-close-modal="modal-food">&times;</button>
+            </div>
+            <form id="form-log-food">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">Food Name</label>
+                        <input type="text" id="food-input-name" class="form-input" placeholder="e.g. Grilled Chicken Salad" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Meal Category</label>
+                            <select id="food-input-category" class="form-select">
+                                <option value="breakfast">Breakfast</option>
+                                <option value="lunch">Lunch</option>
+                                <option value="dinner">Dinner</option>
+                                <option value="snack">Snack</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Calories (kcal)</label>
+                            <input type="number" id="food-input-calories" class="form-input" placeholder="e.g. 450" step="1" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Protein (g)</label>
+                            <input type="number" id="food-input-protein" class="form-input" placeholder="30" step="0.5">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Carbs (g)</label>
+                            <input type="number" id="food-input-carbs" class="form-input" placeholder="40" step="0.5">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Fat (g)</label>
+                            <input type="number" id="food-input-fat" class="form-input" placeholder="12" step="0.5">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-close-modal="modal-food">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Food Item</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: LOG ACTIVITY -->
+    <div class="modal-overlay" id="modal-activity">
+        <div class="modal-content" style="max-width: 460px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Record Daily Activity</h3>
+                <button class="modal-close-btn" data-close-modal="modal-activity">&times;</button>
+            </div>
+            <form id="form-log-activity">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">Activity Date</label>
+                        <input type="date" id="act-input-date" class="form-input" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Daily Steps</label>
+                            <input type="number" id="act-input-steps" class="form-input" placeholder="e.g. 10250" min="0" max="150000" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Active (mins)</label>
+                            <input type="number" id="act-input-active" class="form-input" placeholder="45" min="0" max="1440" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Cardio Minutes</label>
+                            <input type="number" id="act-input-cardio" class="form-input" placeholder="30" min="0" max="1440" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Calories Burned (kcal)</label>
+                            <input type="number" id="act-input-calories" class="form-input" placeholder="optional" min="0">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-close-modal="modal-activity">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Activity</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: AUTHENTICATION (LOGIN & REGISTER) -->
+    <div class="modal-overlay" id="modal-auth">
+        <div class="modal-content" style="max-width: 440px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="auth-modal-title">Welcome to FitTrack</h3>
+            </div>
+            <div class="modal-body">
+                <!-- Toggle between Login and Register -->
+                <div style="display:flex; background:var(--bg-input); border-radius:10px; padding:4px; margin-bottom:20px;">
+                    <button type="button" class="btn btn-sm btn-primary auth-toggle-btn" id="btn-toggle-login" style="flex:1;">Sign In</button>
+                    <button type="button" class="btn btn-sm btn-secondary auth-toggle-btn" id="btn-toggle-register" style="flex:1;">Create Account</button>
+                </div>
+
+                <!-- Login Form -->
+                <form id="form-auth-login">
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" id="login-email" class="form-input" placeholder="you@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" id="login-password" class="form-input" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width:100%; margin-top:8px;">Sign In to FitTrack</button>
+                </form>
+
+                <!-- Register Form -->
+                <form id="form-auth-register" style="display:none;">
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" id="reg-name" class="form-input" placeholder="Alex Morgan" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" id="reg-email" class="form-input" placeholder="you@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password (min 6 characters)</label>
+                        <input type="password" id="reg-password" class="form-input" placeholder="••••••••" minlength="6" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width:100%; margin-top:8px;">Create Free Account</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div id="toast-container"></div>
+
+    <!-- Application Script (ES Module) -->
+    <script type="module" src="/static/script.js"></script>
+</body>
+</html>

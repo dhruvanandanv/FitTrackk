@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account — FitTrack</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .auth-standalone-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background: radial-gradient(circle at 50% 20%, rgba(163, 230, 53, 0.08), transparent 70%), var(--bg-base);
+        }
+        .auth-card {
+            background-color: var(--bg-card-elevated);
+            border: 1px solid var(--border-strong);
+            border-radius: var(--radius-lg);
+            padding: 36px;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: var(--shadow-lg);
+        }
+    </style>
+</head>
+<body class="auth-standalone-page">
+    <div class="auth-card">
+        <div style="text-align:center; margin-bottom: 28px;">
+            <div class="brand-icon" style="margin: 0 auto 16px;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/></svg>
+            </div>
+            <h1 style="font-size:1.5rem; font-weight:800; color:var(--text-primary); letter-spacing:-0.5px;">Get started with FitTrack</h1>
+            <p style="color:var(--text-secondary); font-size:0.9rem; margin-top:4px;">Set up your private fitness tracker</p>
+        </div>
+
+        <form id="standalone-register-form">
+            <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input type="text" id="name" class="form-input" placeholder="Alex Morgan" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input type="email" id="email" class="form-input" placeholder="you@example.com" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Password (min 6 characters)</label>
+                <input type="password" id="password" class="form-input" placeholder="••••••••" minlength="6" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%; margin-top:10px;">Create Free Account</button>
+        </form>
+
+        <div style="text-align:center; margin-top:20px; font-size:0.85rem; color:var(--text-muted);">
+            Already have an account? <a href="/login" style="color:var(--accent); text-decoration:none; font-weight:600;">Sign in</a>
+        </div>
+    </div>
+
+    <script type="module">
+        import { Auth } from "/static/auth.js";
+        const form = document.getElementById("standalone-register-form");
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const name = document.getElementById("name").value;
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            try {
+                await Auth.register(name, email, password);
+                window.location.href = "/";
+            } catch (err) {
+                alert(err.message || "Failed to create account");
+            }
+        });
+    </script>
+</body>
+</html>
